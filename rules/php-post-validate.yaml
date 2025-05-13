@@ -1,0 +1,9 @@
+rules:
+  - id: php-unvalidated-post
+    patterns:
+      - pattern: $_POST["$VAR"]
+      - pattern-not-inside: password_verify(...)
+    message: Unsanitized POST input used directly.
+    severity: WARNING
+    languages: [php]
+

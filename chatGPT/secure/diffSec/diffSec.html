@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>File Difference Viewer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/diff2html/3.4.0/diff2html.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/diff/5.1.0/diff.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/diff2html/3.4.0/diff2html.min.css" />
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input { margin-bottom: 10px; display: block; }
+    #diffContainer { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Upload Two Files to Compare</h1>
+  <input type="file" id="file1">
+  <input type="file" id="file2">
+  <button onclick="compareFiles()">Compare</button>
+  <div id="diffContainer"></div>
+
+  <script>
+    async function readFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsText(file);
+      });
+    }
+
+    async function compareFiles() {
+      const file1 = document.getElementById('file1').files[0];
+      const file2 = document.getElementById('file2').files[0];
+
+      if (!file1 || !file2) {
+        alert("Please select two files.");
+        return;
+      }
+
+      const [text1, text2] = await Promise.all([readFile(file1), readFile(file2)]);
+      const diff = Diff.createTwoFilesPatch(file1.name, file2.name, text1, text2);
+
+      const diffHtml = Diff2Html.html(diff, { drawFileList: true, matching: 'lines', outputFormat: 'side-by-side' });
+      document.getElementById('diffContainer').innerHTML = diffHtml;
+    }
+  </script>
+</body>
+</html>
+

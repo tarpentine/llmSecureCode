@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>File Comparison Tool</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input[type="file"] { margin: 10px 0; }
+    #output { white-space: pre-wrap; font-family: monospace; }
+    .added { background-color: #d4fcdc; }
+    .removed { background-color: #fdd; text-decoration: line-through; }
+    .unchanged { color: #666; }
+  </style>
+</head>
+<body>
+  <h2>Compare Two Text Files</h2>
+  <input type="file" id="file1" />
+  <input type="file" id="file2" />
+  <br><br>
+  <button onclick="compareFiles()">Compare</button>
+  <div id="output"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js"></script>
+  <script>
+    function readFile(file, callback) {
+      const reader = new FileReader();
+      reader.onload = () => callback(reader.result);
+      reader.readAsText(file);
+    }
+
+    function compareFiles() {
+      const file1 = document.getElementById('file1').files[0];
+      const file2 = document.getElementById('file2').files[0];
+      if (!file1 || !file2) {
+        alert("Please select both files.");
+        return;
+      }
+
+      readFile(file1, text1 => {
+        readFile(file2, text2 => {
+          const diff = Diff.diffWords(text1, text2);
+          const output = diff.map(part => {
+            const cls = part.added ? 'added' : part.removed ? 'removed' : 'unchanged';
+            return `<span class="${cls}">${part.value}</span>`;
+          }).join('');
+          document.getElementById('output').innerHTML = output;
+        });
+      });
+    }
+  </script>
+</body>
+</html>
+
